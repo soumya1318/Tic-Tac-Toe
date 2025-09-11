@@ -39,7 +39,7 @@ Download or clone this repository.
 
 Open index.html in any modern browser.
 
-Play Tic Tac Toe with a friend — O always starts first!
+Play Tic Tac Toe with a friend — Player X , Player 0
 ------------------------------------------------------------
 🛠️ Built With
 
