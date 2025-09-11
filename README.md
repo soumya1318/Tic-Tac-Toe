@@ -26,7 +26,7 @@ New Game button starts a fresh match.
 📱 Responsive Design – Scales smoothly across different screen sizes.
 ----------------------------------------------------------------
 📁 Project Structure
-tic-tac-toe/
+TicTacToe/
 ├── index.html   # Game layout and UI
 ├── style.css    # Styling, animations, responsiveness
 ├── script.js    # Game logic, sounds, and event handling
