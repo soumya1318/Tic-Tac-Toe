@@ -1,420 +1,119 @@
+let boxes = document.querySelectorAll(".box");
+let resetBtn = document.querySelector("#reset");
+let newBtn = document.querySelector("#new-btn");
+let msgContainer = document.querySelector(".msg-container");
+let msg = document.querySelector("#msg");
+let winline = document.querySelector(".win-line");
+let imgbox = document.querySelector(".imgbox");
 
-function myfunc() { 
-  var b1, b2, b3, b4, b5, b6, b7, b8, b9; 
-	b1 = document.getElementById("b1").value; 
-	b2 = document.getElementById("b2").value; 
-	b3 = document.getElementById("b3").value; 
-	b4 = document.getElementById("b4").value; 
-	b5 = document.getElementById("b5").value; 
-	b6 = document.getElementById("b6").value; 
-	b7 = document.getElementById("b7").value; 
-	b8 = document.getElementById("b8").value; 
-	b9 = document.getElementById("b9").value; 
+let count = 0;
+let turn0 = true; // true -> O, false -> X
 
-	var b1btn, b2btn, b3btn, b4btn, b5btn, 
-		b6btn, b7btn, b8btn, b9btn; 
-		
-	b1btn = document.getElementById("b1"); 
-	b2btn = document.getElementById("b2"); 
-	b3btn = document.getElementById("b3"); 
-	b4btn = document.getElementById("b4"); 
-	b5btn = document.getElementById("b5"); 
-	b6btn = document.getElementById("b6"); 
-	b7btn = document.getElementById("b7"); 
-	b8btn = document.getElementById("b8"); 
-	b9btn = document.getElementById("b9"); 
+// [startX, startY, translateX, translateY, rotation]
+const winPatterns = [
+    [0, 1, 2, 3, 10, 0],
+    [3, 4, 5, 3, 30, 0],
+    [6, 7, 8, 3, 50, 0],
+    [0, 3, 6, 10.5, 3, 90],
+    [1, 4, 7, 30, 3, 90],
+    [2, 5, 8, 50, 3, 90],
+    [0, 4, 8, 10, 9, 47],
+    [2, 4, 6, 10, 50, -47],
+];
 
-	
-	if ((b1 == 'x' || b1 == 'X') && (b2 == 'x' || 
-		b2 == 'X') && (b3 == 'x' || b3 == 'X')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player X won"; 
-		b4btn.disabled = true; 
-		b5btn.disabled = true; 
-		b6btn.disabled = true; 
-		b7btn.disabled = true; 
-		b8btn.disabled = true; 
-		b9btn.disabled = true; 
+const resetGame = () => {
+    turn0 = true;
+    count = 0;
+    enableBoxes();
+    msgContainer.classList.add("hide");
+    winline.style.width = '0';
+    imgbox.getElementsByTagName("img")[0].style.width = "0";
+};
 
-		b1btn.style.color = "red"; 
-		b2btn.style.color = "red"; 
-		b3btn.style.color = "red"; 
-	} 
-	else if ((b1 == 'x' || b1 == 'X') && (b4 == 'x' || 
-		b4 == 'X') && (b7 == 'x' || b7 == 'X')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player X won"; 
-		b2btn.disabled = true; 
-		b3btn.disabled = true; 
-		b5btn.disabled = true; 
-		b6btn.disabled = true; 
-		b8btn.disabled = true; 
-		b9btn.disabled = true; 
+const enableBoxes = () => {
+    boxes.forEach(box => {
+        box.disabled = false;
+        box.innerText = "";
+    });
+};
 
-		b1btn.style.color = "red"; 
-		b4btn.style.color = "red"; 
-		b7btn.style.color = "red"; 
-	} 
-	else if ((b7 == 'x' || b7 == 'X') && (b8 == 'x' || 
-		b8 == 'X') && (b9 == 'x' || b9 == 'X')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player X won"; 
+const disableBoxes = () => {
+    boxes.forEach(box => box.disabled = true);
+};
 
-		b1btn.disabled = true; 
-		b2btn.disabled = true; 
-		b3btn.disabled = true; 
-		b4btn.disabled = true; 
-		b5btn.disabled = true; 
-		b6btn.disabled = true; 
+boxes.forEach((box) => {
+    box.addEventListener("click", () => {
+        if (turn0) {
+            let audio1 = new Audio("music/pop.mp3");
+            audio1.preload = "auto";
+            audio1.play();
+            audio1.currentTime = 0.25;
+            box.innerHTML = "O";
+            box.style.color = "#e07337";
+            turn0 = false;
+        } else {
+            let audio2 = new Audio("music/woosh.mp3");
+            audio2.preload = "auto";
+            audio2.play();
+            audio2.currentTime = 0.2;
+            audio2.playbackRate = 1.5;
+            box.innerHTML = "X";
+            box.style.color = "#0bba25ff";
+            turn0 = true;
+        }
 
-		b7btn.style.color = "red"; 
-		b8btn.style.color = "red"; 
-		b9btn.style.color = "red"; 
-	} 
-	else if ((b3 == 'x' || b3 == 'X') && (b6 == 'x' || 
-		b6 == 'X') && (b9 == 'x' || b9 == 'X')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player X won"; 
+        count++;
+        box.disabled = true;
+        checkWinner();
+    });
+});
 
-		b1btn.disabled = true; 
-		b2btn.disabled = true; 
-		b4btn.disabled = true; 
-		b5btn.disabled = true; 
-		b7btn.disabled = true; 
-		b8btn.disabled = true; 
+const showWinner = (winner) => {
+    let audio4 = new Audio("music/applause-sound.mp3");
+    audio4.preload = "auto";
+    audio4.currentTime = 2;
+    audio4.playbackRate = 1.5;
+    audio4.play().then(() => {
+        setTimeout(() => {
+            audio4.pause();
+        }, 3000 / audio4.playbackRate);
+    });
 
-		b3btn.style.color = "red"; 
-		b6btn.style.color = "red"; 
-		b9btn.style.color = "red"; 
-	} 
-	else if ((b1 == 'x' || b1 == 'X') && (b5 == 'x' || 
-		b5 == 'X') && (b9 == 'x' || b9 == 'X')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player X won"; 
-		b2btn.disabled = true; 
-		b3btn.disabled = true; 
-		b4btn.disabled = true; 
-		b6btn.disabled = true; 
-		b7btn.disabled = true; 
-		b8btn.disabled = true; 
+    imgbox.getElementsByTagName("img")[0].style.width = "100px";
+    msg.innerText = `Congratulations 🎉 Winner is ${winner}`;
+    msgContainer.classList.remove("hide");
 
-		b1btn.style.color = "red"; 
-		b5btn.style.color = "red"; 
-		b9btn.style.color = "red"; 
-	} 
-	else if ((b3 == 'x' || b3 == 'X') && (b5 == 'x' || 
-		b5 == 'X') && (b7 == 'x' || b7 == 'X')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player X won"; 
-		b1btn.disabled = true; 
-		b2btn.disabled = true; 
-		b4btn.disabled = true; 
-		b6btn.disabled = true; 
-		b8btn.disabled = true; 
-		b9btn.disabled = true; 
+    disableBoxes();
+};
 
-		b3btn.style.color = "red"; 
-		b5btn.style.color = "red"; 
-		b7btn.style.color = "red"; 
-	} 
-	else if ((b2 == 'x' || b2 == 'X') && (b5 == 'x' || 
-		b5 == 'X') && (b8 == 'x' || b8 == 'X')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player X won"; 
-		b1btn.disabled = true; 
-		b2btn.disabled = true; 
-		b4btn.disabled = true; 
-		b6btn.disabled = true; 
-		b7btn.disabled = true; 
-		b9btn.disabled = true; 
+const checkWinner = () => {
+    let winnerFound = false;
 
-		b2btn.style.color = "red"; 
-		b5btn.style.color = "red"; 
-		b8btn.style.color = "red"; 
-	} 
-	else if ((b4 == 'x' || b4 == 'X') && (b5 == 'x' || 
-		b5 == 'X') && (b6 == 'x' || b6 == 'X')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player X won"; 
-		b1btn.disabled = true; 
-		b2btn.disabled = true; 
-		b3btn.disabled = true; 
-		b7btn.disabled = true; 
-		b8btn.disabled = true; 
-		b9btn.disabled = true; 
+    for (let pattern of winPatterns) {
+        let pos1val = boxes[pattern[0]].innerText;
+        let pos2val = boxes[pattern[1]].innerText;
+        let pos3val = boxes[pattern[2]].innerText;
 
-		b4btn.style.color = "red"; 
-		b5btn.style.color = "red"; 
-		b6btn.style.color = "red"; 
-	} 
+        if (pos1val !== "" && pos1val === pos2val && pos2val === pos3val) {
+            // Show win line
+            winline.style.width = '54vmin';
+            winline.style.transform = `translate(${pattern[3]}vmin, ${pattern[4]}vmin) rotate(${pattern[5]}deg)`;
+            showWinner(pos1val);
+            winnerFound = true;
+            break; // Stop checking further
+        }
+    }
 
-	
-	else if ((b1 == '0' || b1 == '0') && (b2 == '0' || 
-		b2 == '0') && (b3 == '0' || b3 == '0')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player 0 won"; 
-		b4btn.disabled = true; 
-		b5btn.disabled = true; 
-		b6btn.disabled = true; 
-		b7btn.disabled = true; 
-		b8btn.disabled = true; 
-		b9btn.disabled = true; 
+    // Check draw only if no winner
+    if (!winnerFound && count === 9) {
+        let audio3 = new Audio("music/cartoon-sound.mp3");
+        audio3.preload = "auto";
+        audio3.play();
+        msg.innerText = "🤝 It's a Draw!";
+        msgContainer.classList.remove("hide");
+        disableBoxes();
+    }
+};
 
-		b1btn.style.color = "red"; 
-		b2btn.style.color = "red"; 
-		b3btn.style.color = "red"; 
-	} 
-	else if ((b1 == '0' || b1 == '0') && (b4 == '0' || 
-		b4 == '0') && (b7 == '0' || b7 == '0')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player 0 won"; 
-		b2btn.disabled = true; 
-		b3btn.disabled = true; 
-		b5btn.disabled = true; 
-		b6btn.disabled = true; 
-		b8btn.disabled = true; 
-		b9btn.disabled = true; 
-
-		b1btn.style.color = "red"; 
-		b4btn.style.color = "red"; 
-		b7btn.style.color = "red"; 
-	} 
-	else if ((b7 == '0' || b7 == '0') && (b8 == '0' || 
-		b8 == '0') && (b9 == '0' || b9 == '0')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player 0 won"; 
-		b1btn.disabled = true; 
-		b2btn.disabled = true; 
-		b3btn.disabled = true; 
-		b4btn.disabled = true; 
-		b5btn.disabled = true; 
-		b6btn.disabled = true; 
-
-		b7btn.style.color = "red"; 
-		b8btn.style.color = "red"; 
-		b9btn.style.color = "red"; 
-	} 
-	else if ((b3 == '0' || b3 == '0') && (b6 == '0' || 
-		b6 == '0') && (b9 == '0' || b9 == '0')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player 0 won"; 
-		b1btn.disabled = true; 
-		b2btn.disabled = true; 
-		b4btn.disabled = true; 
-		b5btn.disabled = true; 
-		b7btn.disabled = true; 
-		b8btn.disabled = true; 
-		b3btn.style.color = "red"; 
-		b6btn.style.color = "red"; 
-		b9btn.style.color = "red"; 
-	} 
-	else if ((b1 == '0' || b1 == '0') && (b5 == '0' || 
-		b5 == '0') && (b9 == '0' || b9 == '0')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player 0 won"; 
-		b2btn.disabled = true; 
-		b3btn.disabled = true; 
-		b4btn.disabled = true; 
-		b6btn.disabled = true; 
-		b7btn.disabled = true; 
-		b8btn.disabled = true; 
-
-		b1btn.style.color = "red"; 
-		b5btn.style.color = "red"; 
-		b9btn.style.color = "red"; 
-	} 
-	else if ((b3 == '0' || b3 == '0') && (b5 == '0' || 
-		b5 == '0') && (b7 == '0' || b7 == '0')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player 0 won"; 
-		b1btn.disabled = true; 
-		b2btn.disabled = true; 
-		b4btn.disabled = true; 
-		b6btn.disabled = true; 
-		b8btn.disabled = true; 
-		b9btn.disabled = true; 
-
-		b3btn.style.color = "red"; 
-		b5btn.style.color = "red"; 
-		b7btn.style.color = "red"; 
-	} 
-	else if ((b2 == '0' || b2 == '0') && (b5 == '0' || 
-		b5 == '0') && (b8 == '0' || b8 == '0')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player 0 won"; 
-		b1btn.disabled = true; 
-		b3btn.disabled = true; 
-		b4btn.disabled = true; 
-		b6btn.disabled = true; 
-		b7btn.disabled = true; 
-		b9btn.disabled = true; 
-
-		b2btn.style.color = "red"; 
-		b5btn.style.color = "red"; 
-		b8btn.style.color = "red"; 
-	} 
-	else if ((b4 == '0' || b4 == '0') && (b5 == '0' || 
-		b5 == '0') && (b6 == '0' || b6 == '0')) { 
-		document.getElementById('print') 
-			.innerHTML = "Player 0 won"; 
-		b1btn.disabled = true; 
-		b2btn.disabled = true; 
-		b3btn.disabled = true; 
-		b7btn.disabled = true; 
-		b8btn.disabled = true; 
-		b9btn.disabled = true; 
-
-		b4btn.style.color = "red"; 
-		b5btn.style.color = "red"; 
-		b6btn.style.color = "red"; 
-	} 
-
-	
-	else if ((b1 == 'X' || b1 == '0') && (b2 == 'X'
-		|| b2 == '0') && (b3 == 'X' || b3 == '0') && 
-		(b4 == 'X' || b4 == '0') && (b5 == 'X' || 
-			b5 == '0') && (b6 == 'X' || b6 == '0') && 
-		(b7 == 'X' || b7 == '0') && (b8 == 'X' || 
-			b8 == '0') && (b9 == 'X' || b9 == '0')) { 
-		document.getElementById('print') 
-			.innerHTML = "Match Tie"; 
-	} 
-	else { 
-
-	
-		if (flag == 1) { 
-			document.getElementById('print') 
-				.innerHTML = "Player X Turn"; 
-		} 
-		else { 
-			document.getElementById('print') 
-				.innerHTML = "Player 0 Turn"; 
-		} 
-	} 
-} 
-
-
-function myfunc_2() { 
-	location.reload(); 
-	b1 = b2 = b3 = b4 = b5 = b6 = b7 = b8 = b9 = ''; 
-} 
-
-
-flag = 1; 
-function myfunc_3() { 
-	if (flag == 1) { 
-		document.getElementById("b1").value = "X"; 
-		document.getElementById("b1").disabled = true; 
-		flag = 0; 
-	} 
-	else { 
-		document.getElementById("b1").value = "0"; 
-		document.getElementById("b1").disabled = true; 
-		flag = 1; 
-	} 
-} 
-
-function myfunc_4() { 
-	if (flag == 1) { 
-		document.getElementById("b2").value = "X"; 
-		document.getElementById("b2").disabled = true; 
-		flag = 0; 
-	} 
-	else { 
-		document.getElementById("b2").value = "0"; 
-		document.getElementById("b2").disabled = true; 
-		flag = 1; 
-	} 
-} 
-
-function myfunc_5() { 
-	if (flag == 1) { 
-		document.getElementById("b3").value = "X"; 
-		document.getElementById("b3").disabled = true; 
-		flag = 0; 
-	} 
-	else { 
-		document.getElementById("b3").value = "0"; 
-		document.getElementById("b3").disabled = true; 
-		flag = 1; 
-	} 
-} 
-
-function myfunc_6() { 
-	if (flag == 1) { 
-		document.getElementById("b4").value = "X"; 
-		document.getElementById("b4").disabled = true; 
-		flag = 0; 
-	} 
-	else { 
-		document.getElementById("b4").value = "0"; 
-		document.getElementById("b4").disabled = true; 
-		flag = 1; 
-	} 
-} 
-
-function myfunc_7() { 
-	if (flag == 1) { 
-		document.getElementById("b5").value = "X"; 
-		document.getElementById("b5").disabled = true; 
-		flag = 0; 
-	} 
-	else { 
-		document.getElementById("b5").value = "0"; 
-		document.getElementById("b5").disabled = true; 
-		flag = 1; 
-	} 
-} 
-
-function myfunc_8() { 
-	if (flag == 1) { 
-		document.getElementById("b6").value = "X"; 
-		document.getElementById("b6").disabled = true; 
-		flag = 0; 
-	} 
-	else { 
-		document.getElementById("b6").value = "0"; 
-		document.getElementById("b6").disabled = true; 
-		flag = 1; 
-	} 
-} 
-
-function myfunc_9() { 
-	if (flag == 1) { 
-		document.getElementById("b7").value = "X"; 
-		document.getElementById("b7").disabled = true; 
-		flag = 0; 
-	} 
-	else { 
-		document.getElementById("b7").value = "0"; 
-		document.getElementById("b7").disabled = true; 
-		flag = 1; 
-	} 
-} 
-
-function myfunc_10() { 
-	if (flag == 1) { 
-		document.getElementById("b8").value = "X"; 
-		document.getElementById("b8").disabled = true; 
-		flag = 0; 
-	} 
-	else { 
-		document.getElementById("b8").value = "0"; 
-		document.getElementById("b8").disabled = true; 
-		flag = 1; 
-	} 
-} 
-
-function myfunc_11() { 
-	if (flag == 1) { 
-		document.getElementById("b9").value = "X"; 
-		document.getElementById("b9").disabled = true; 
-		flag = 0; 
-	} 
-	else { 
-		document.getElementById("b9").value = "0"; 
-		document.getElementById("b9").disabled = true; 
-		flag = 1; 
-	} 
-} 
-
+newBtn.addEventListener("click", resetGame);
+resetBtn.addEventListener("click", resetGame);
