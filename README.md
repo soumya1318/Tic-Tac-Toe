@@ -24,14 +24,7 @@ New Game button starts a fresh match.
 ⛔ Move Validation – Prevents overwriting moves by disabling filled cells.
 
 📱 Responsive Design – Scales smoothly across different screen sizes.
-----------------------------------------------------------------
-📁 Project Structure
-TicTacToe/
-├── index.html   # Game layout and UI
-├── style.css    # Styling, animations, responsiveness
-├── script.js    # Game logic, sounds, and event handling
-├── music/       # Sound effects
-└── output.gif   # Celebration effect
+
 ------------------------------------------------------------
 🖥️ Installation / How to Run
 
